@@ -274,9 +274,9 @@ public class HaggleProcessWindow
           catch (Exception e)
           {
             Log.Error($"Error while reading tooltip: {e}");
-            return true;
+            return false;
           }
-        }, 1000);
+        }, TujenMem.Instance.Settings.HoverItemDelay);
 
         var ttBody = TujenMem.Instance.GameController.IngameState.IngameUi.HaggleWindow.InventoryItems[i].Tooltip?.GetChildFromIndices(0, 1);
         try
@@ -285,6 +285,10 @@ public class HaggleProcessWindow
             || ttBody == null
             || TujenMem.Instance.GameController.IngameState.IngameUi.HaggleWindow.InventoryItems[i].Tooltip.GetChildFromIndices(0, 1, ttBody.Children.Count - 1, 1) == null)
           {
+            if (attempts < 3)
+            {
+                continue;
+            }
             Error.Add("Error while reading tooltip", $"Tooltip structure is unexpected. Item: {item.Name}");
             Error.Add("Tooltip Structure", Error.VisualizeElementTree(TujenMem.Instance.GameController.IngameState.IngameUi.HaggleWindow.InventoryItems[i].Tooltip));
             Error.Show();

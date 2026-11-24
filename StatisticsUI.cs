@@ -243,7 +243,7 @@ public static class StatisticsUI
       ImGui.SameLine();
       TujenMemSettings.HelpMarker("Select a league file to view statistics from. Files are ordered by last modified date.");
 
-      ImGui.PushItemWidth(ImGui.GetWindowContentRegionMax().X - ImGui.GetStyle().FramePadding.X * 2);
+      ImGui.PushItemWidth(ImGui.GetContentRegionAvail().X - ImGui.GetStyle().FramePadding.X * 2);
       if (ImGui.BeginCombo("##leagueFileSelect", _selectedLeagueFile))
       {
         foreach (var leagueFile in _availableLeagueFiles)
@@ -268,7 +268,7 @@ public static class StatisticsUI
       var buttonWidth = ImGui.CalcTextSize("Reload Data").X + ImGui.GetStyle().FramePadding.X * 2.0f;
       var displayModeWidth = 150f; // Aprox width for the combo box
       var totalWidth = buttonWidth + displayModeWidth + ImGui.GetStyle().ItemSpacing.X;
-      ImGui.SetCursorPosX(ImGui.GetWindowContentRegionMax().X - totalWidth);
+      ImGui.SetCursorPosX(ImGui.GetContentRegionAvail().X - totalWidth);
 
       ImGui.PushItemWidth(displayModeWidth);
       var modes = TujenMem.Instance.Settings.SillyOrExperimenalFeatures.StatisticsDisplayMode.Values;

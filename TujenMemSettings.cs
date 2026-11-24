@@ -77,7 +77,7 @@ public class TujenMemSettings : ISettings
                         whiteListInput = "";
                     }
 
-                    ImGui.BeginChild("##WhitelistList", new System.Numerics.Vector2(0, 200), ImGuiChildFlags.Border);
+                    ImGui.BeginChild("##WhitelistList", new System.Numerics.Vector2(0, 200), ImGuiChildFlags.Borders);
                     foreach (var s in Whitelist)
                     {
                         if (ImGui.Selectable(s, s == whiteListSelected))
@@ -116,7 +116,7 @@ public class TujenMemSettings : ISettings
                         blackListInput = "";
                     }
 
-                    ImGui.BeginChild("##BlackListList", new System.Numerics.Vector2(0, 200), ImGuiChildFlags.Border);
+                    ImGui.BeginChild("##BlackListList", new System.Numerics.Vector2(0, 200), ImGuiChildFlags.Borders);
                     foreach (var s in Blacklist)
                     {
                         if (ImGui.Selectable(s, s == blackListSelected))
@@ -175,7 +175,7 @@ public class TujenMemSettings : ISettings
                         Ninja.SetDirty();
                     }
 
-                    ImGui.BeginChild("##CustomPricesList", new System.Numerics.Vector2(0, 200), ImGuiChildFlags.Border);
+                    ImGui.BeginChild("##CustomPricesList", new System.Numerics.Vector2(0, 200), ImGuiChildFlags.Borders);
                     foreach (var s in CustomPrices)
                     {
                         var t = s.Item2 != null ? s.Item2.ToString() : s.Item3;
@@ -227,7 +227,7 @@ public class TujenMemSettings : ISettings
                     }
                     var t2 = string.Join(",", itemMappingSelected.Item1) + itemMappingSelected.Item2;
 
-                    ImGui.BeginChild("##ItemMappingsList", new System.Numerics.Vector2(0, 200), ImGuiChildFlags.Border);
+                    ImGui.BeginChild("##ItemMappingsList", new System.Numerics.Vector2(0, 200), ImGuiChildFlags.Borders);
                     foreach (var s in ItemMappings)
                     {
                         var t1 = string.Join(",", s.Item1) + s.Item2;
@@ -344,7 +344,7 @@ public class TujenMemSettings : ISettings
     public TextNode League { get; set; } = new TextNode("Ancestor");
 
     [Menu("HoverItem Delay", "Delay used to wait inbetween checks for the Hoveritem (in ms).")]
-    public RangeNode<int> HoverItemDelay { get; set; } = new RangeNode<int>(15, 0, 100);
+    public RangeNode<int> HoverItemDelay { get; set; } = new RangeNode<int>(15, 0, 3000);
     public ToggleNode EmptyInventoryAfterHaggling { get; set; } = new ToggleNode(false);
 
 
@@ -495,7 +495,7 @@ public class PrepareLogbookSettings
 
                         if (ImGui.IsItemActive() && !ImGui.IsItemHovered())
                         {
-                            int nNext = n + (ImGui.GetMouseDragDelta(0).Y < 0.0f ? -1 : 1);
+                            int nNext = n + (ImGui.GetMouseDragDelta(0f).Y < 0.0f ? -1 : 1);
                             if (nNext >= 0 && nNext < FactionOrder.Count)
                             {
                                 FactionOrder[n] = FactionOrder[nNext];
@@ -530,7 +530,7 @@ public class PrepareLogbookSettings
 
                         if (ImGui.IsItemActive() && !ImGui.IsItemHovered())
                         {
-                            int nNext = n + (ImGui.GetMouseDragDelta(0).Y < 0.0f ? -1 : 1);
+                            int nNext = n + (ImGui.GetMouseDragDelta(0f).Y < 0.0f ? -1 : 1);
                             if (nNext >= 0 && nNext < AreaOrder.Count)
                             {
                                 AreaOrder[n] = AreaOrder[nNext];
@@ -646,7 +646,7 @@ public class SillyOrExperimenalFeatures
                         manualItemsInput = "";
                     }
 
-                    ImGui.BeginChild("##ManualItemsList", new System.Numerics.Vector2(0, 150), ImGuiChildFlags.Border);
+                    ImGui.BeginChild("##ManualItemsList", new System.Numerics.Vector2(0, 150), ImGuiChildFlags.Borders);
                     foreach (var s in StatisticsManualItems)
                     {
                         if (ImGui.Selectable(s, s == manualItemsSelected))
@@ -733,7 +733,7 @@ public class Gwennen
                         baseListInput = "";
                     }
 
-                    ImGui.BeginChild("##BaseListList", new System.Numerics.Vector2(0, 200), ImGuiChildFlags.Border);
+                    ImGui.BeginChild("##BaseListList", new System.Numerics.Vector2(0, 200), ImGuiChildFlags.Borders);
                     foreach (var s in BaseList)
                     {
                         if (ImGui.Selectable(s, s == baseListSelected))
@@ -807,7 +807,7 @@ public class StashSettings
                     }
 
                     ImGui.Spacing();
-                    ImGui.BeginChild("##StashTabMappingsList", new System.Numerics.Vector2(0, 200), ImGuiChildFlags.Border);
+                    ImGui.BeginChild("##StashTabMappingsList", new System.Numerics.Vector2(0, 200), ImGuiChildFlags.Borders);
                     foreach (var s in StashTabMappings)
                     {
                         if (ImGui.Selectable($"{s.Item1} -> {s.Item2}", s == stashTabMappingSelected))

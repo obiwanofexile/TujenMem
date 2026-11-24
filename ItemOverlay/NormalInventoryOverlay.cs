@@ -102,7 +102,7 @@ public class NormalInventoryOverlay : IInventoryOverlayRenderer
             if (item.FillColor != 0)
                 drawList.AddRectFilled(item.TopLeft, item.BottomRight, item.FillColor);
             if (item.BorderColor != 0)
-                drawList.AddRect(item.TopLeft, item.BottomRight, item.BorderColor, 0, ImDrawFlags.None, 2);
+                drawList.AddRect(item.TopLeft, item.BottomRight, item.BorderColor, 0, 2, ImDrawFlags.None);
         }
     }
 }

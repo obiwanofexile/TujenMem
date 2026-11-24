@@ -1,4 +1,5 @@
 using System;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
 using System.IO;
@@ -84,34 +85,32 @@ public class NinjaItemClusterJewel : NinjaItem
 
 public class JSONCurrencyLine
 {
-    public string CurrencyTypeName { get; set; }
-    public float ChaosEquivalent { get; set; }
+    [JsonProperty("id")]
+    public string Id { get; set; }
+
+    [JsonProperty("primaryValue")]
+    public float PrimaryValue { get; set; }
 }
 
-public class JSONItemLine
+public class JSONCurrencyItem
 {
+    [JsonProperty("id")]
+    public string Id { get; set; }
+
+    [JsonProperty("name")]
     public string Name { get; set; }
-    public float ChaosValue { get; set; }
+
+    [JsonProperty("detailsId")]
+    public string DetailsId { get; set; }
 }
 
-public class JSONItemLineMap : JSONItemLine
+public class JSONCurrencyOverviewFile
 {
-    public string BaseType { get; set; }
-    public int ItemClass { get; set; }
-}
+    [JsonProperty("lines")]
+    public List<JSONCurrencyLine> Lines { get; set; } = new();
 
-public class JSONItemLineGem : JSONItemLine
-{
-    public int GemLevel { get; set; }
-    public int GemQuality { get; set; }
-    public bool Corrupted { get; set; }
-}
-
-public class JSONItemLineClusteJewel : JSONItemLine
-{
-    public int LevelRequired { get; set; }
-    public string Variant { get; set; }
-    public string BaseType { get; set; }
+    [JsonProperty("items")]
+    public List<JSONCurrencyItem> Items { get; set; } = new();
 }
 
 public class JSONFile<T>
@@ -168,19 +167,19 @@ public class Ninja
     {
         ("Currency", DownloadType.Currency),
         ("Fragment", DownloadType.Currency),
-        ("Oil", DownloadType.Items),
-        ("Incubator", DownloadType.Items),
+        ("Oil", DownloadType.Currency),
         ("Map", DownloadType.Items),
         ("BlightedMap", DownloadType.Items),
         ("UniqueMap", DownloadType.Items),
-        ("DeliriumOrb", DownloadType.Items),
-        ("Scarab", DownloadType.Items),
-        ("Fossil", DownloadType.Items),
-        ("Resonator", DownloadType.Items),
-        ("Essence", DownloadType.Items),
+        ("DeliriumOrb", DownloadType.Currency),
+        ("Scarab", DownloadType.Currency),
+        ("Thread", DownloadType.Currency),
+        ("Fossil", DownloadType.Currency),
+        ("Resonator", DownloadType.Currency),
+        ("Essence", DownloadType.Currency),
         ("SkillGem", DownloadType.Items),
-        ("Tattoo", DownloadType.Items),
-        ("DivinationCard", DownloadType.Items),
+        ("Tattoo", DownloadType.Currency),
+        ("DivinationCard", DownloadType.Currency),
         ("ClusterJewel", DownloadType.Items)
     };
 
@@ -332,58 +331,64 @@ public class Ninja
     {
         _items.Clear();
 
-
         _dirty = false;
         if (!IsValid)
         {
             return;
         }
+
         var result = new List<NinjaItem>();
 
         foreach (var dl in DownloadList)
         {
-            var filePath = GetFilePathForName(dl.Item1);
-            switch (dl.Item2)
+            try
             {
-                case DownloadType.Currency:
-                    var parsedCurrency = Newtonsoft.Json.JsonConvert.DeserializeObject<JSONFile<JSONCurrencyLine>>(File.ReadAllText(filePath));
-                    var linesCurrency = parsedCurrency.Lines.Select(l => new NinjaItem(l.CurrencyTypeName, l.ChaosEquivalent)).ToList();
-                    result.AddRange(linesCurrency);
-                    break;
+                var filePath = GetFilePathForName(dl.Item1);
+                switch (dl.Item2)
+                {
+                    case DownloadType.Currency:
+                        var currencyContent = await File.ReadAllTextAsync(filePath);
+                        var linesCurrency = ParseCurrencyItems(currencyContent);
+                        result.AddRange(linesCurrency);
+                        break;
 
-                case DownloadType.Items:
-                    var content = await File.ReadAllTextAsync(filePath);
-                    if (dl.Item1 == "Map" || dl.Item1 == "UniqueMap" || dl.Item1 == "BlightedMap")
-                    {
-                        var isUnique = dl.Item1 == "UniqueMap";
-                        var parsed = Newtonsoft.Json.JsonConvert.DeserializeObject<JSONFile<JSONItemLineMap>>(content);
-                        var lines = parsed.Lines.Select(l => {
-                            var tier = NinjaItemMap.ParseTierFromName(l.BaseType ?? l.Name);
-                            return new NinjaItemMap(l.Name, l.ChaosValue, tier, isUnique, l.BaseType ?? l.Name);
-                        }).ToList();
-                        result.AddRange(lines);
-                    }
-                    else if (dl.Item1 == "SkillGem")
-                    {
-                        var parsed = Newtonsoft.Json.JsonConvert.DeserializeObject<JSONFile<JSONItemLineGem>>(content);
-                        var lines = parsed.Lines.Select(l => new NinjaItemGem(l.Name, l.ChaosValue, l.GemLevel, l.GemQuality, l.Name == "Enlighten Support" || l.Name == "Empower Support" || l.Name == "Enhance Support", l.Corrupted)).ToList();
-                        result.AddRange(lines);
-
-                    }
-                    else if (dl.Item1 == "ClusterJewel")
-                    {
-                        var parsed = Newtonsoft.Json.JsonConvert.DeserializeObject<JSONFile<JSONItemLineClusteJewel>>(content);
-                        var lines = parsed.Lines.Select(l => new NinjaItemClusterJewel(l.Name, l.ChaosValue, l.LevelRequired, int.Parse(Regex.Replace(l.Variant, "[^0-9]", "")), l.BaseType)).ToList();
-                        result.AddRange(lines);
-                    }
-                    else
-                    {
-                        var parsed = Newtonsoft.Json.JsonConvert.DeserializeObject<JSONFile<JSONItemLine>>(content);
-                        var lines = parsed.Lines.Select(l => new NinjaItem(l.Name, l.ChaosValue)).ToList();
-                        result.AddRange(lines);
-                    }
-                    break;
-
+                    case DownloadType.Items:
+                        var content = await File.ReadAllTextAsync(filePath);
+                        if (dl.Item1 == "Map" || dl.Item1 == "UniqueMap" || dl.Item1 == "BlightedMap")
+                        {
+                            var isUnique = dl.Item1 == "UniqueMap";
+                            var parsed = Newtonsoft.Json.JsonConvert.DeserializeObject<JSONFile<JSONItemLineMap>>(content);
+                            var lines = parsed.Lines.Select(l =>
+                            {
+                                var tier = NinjaItemMap.ParseTierFromName(l.BaseType ?? l.Name);
+                                return new NinjaItemMap(l.Name, l.ChaosValue, tier, isUnique, l.BaseType ?? l.Name);
+                            }).ToList();
+                            result.AddRange(lines);
+                        }
+                        else if (dl.Item1 == "SkillGem")
+                        {
+                            var parsed = Newtonsoft.Json.JsonConvert.DeserializeObject<JSONFile<JSONItemLineGem>>(content);
+                            var lines = parsed.Lines.Select(l => new NinjaItemGem(l.Name, l.ChaosValue, l.GemLevel, l.GemQuality, l.Name == "Enlighten Support" || l.Name == "Empower Support" || l.Name == "Enhance Support", l.Corrupted)).ToList();
+                            result.AddRange(lines);
+                        }
+                        else if (dl.Item1 == "ClusterJewel")
+                        {
+                            var parsed = Newtonsoft.Json.JsonConvert.DeserializeObject<JSONFile<JSONItemLineClusteJewel>>(content);
+                            var lines = parsed.Lines.Select(l => new NinjaItemClusterJewel(l.Name, l.ChaosValue, l.LevelRequired, int.Parse(Regex.Replace(l.Variant, "[^0-9]", "")), l.BaseType)).ToList();
+                            result.AddRange(lines);
+                        }
+                        else
+                        {
+                            var parsed = Newtonsoft.Json.JsonConvert.DeserializeObject<JSONFile<JSONItemLine>>(content);
+                            var lines = parsed.Lines.Select(l => new NinjaItem(l.Name, l.ChaosValue)).ToList();
+                            result.AddRange(lines);
+                        }
+                        break;
+                }
+            }
+            catch (Exception e)
+            {
+                Log.Error("Jaime error - " + e.Message);
             }
         }
 
@@ -552,12 +557,70 @@ public class Ninja
         switch (dl.Item2)
         {
             case DownloadType.Currency:
-                return "https://poe.ninja/api/data/CurrencyOverview?league=" + league + "&type=" + dl.Item1 + "&language=en";
+                return "https://poe.ninja/poe1/api/economy/exchange/current/overview?league=" + league + "&type=" + dl.Item1 + "&language=en";
             case DownloadType.Items:
-                return "https://poe.ninja/api/data/ItemOverview?league=" + league + "&type=" + dl.Item1 + "&language=en";
+                return "https://poe.ninja/poe1/api/economy/stash/current/item/overview?league=" + league + "&type=" + dl.Item1 + "&language=en";
             default:
                 throw new Exception("Unknown DownloadType");
         }
     }
 
+    private static List<NinjaItem> ParseCurrencyItems(string content)
+    {
+        var parsedCurrency = JsonConvert.DeserializeObject<JSONCurrencyOverviewFile>(content);
+        if (parsedCurrency == null || parsedCurrency.Lines == null || parsedCurrency.Lines.Count == 0)
+        {
+            return new();
+        }
+
+        var namesById = (parsedCurrency.Items ?? new List<JSONCurrencyItem>())
+            .Where(x => !string.IsNullOrWhiteSpace(x.Id) && !string.IsNullOrWhiteSpace(x.Name))
+            .GroupBy(x => x.Id)
+            .ToDictionary(x => x.Key, x => x.First().Name);
+
+        var result = new List<NinjaItem>();
+
+        foreach (var line in parsedCurrency.Lines)
+        {
+            if (line == null || string.IsNullOrWhiteSpace(line.Id) || line.PrimaryValue <= 0f)
+            {
+                continue;
+            }
+
+            if (!namesById.TryGetValue(line.Id, out var name) || string.IsNullOrWhiteSpace(name))
+            {
+                continue;
+            }
+
+            result.Add(new NinjaItem(name, line.PrimaryValue));
+        }
+
+        return result;
+    }
+}
+
+public class JSONItemLine
+{
+    public string Name { get; set; }
+    public float ChaosValue { get; set; }
+}
+
+public class JSONItemLineMap : JSONItemLine
+{
+    public string BaseType { get; set; }
+    public int ItemClass { get; set; }
+}
+
+public class JSONItemLineGem : JSONItemLine
+{
+    public int GemLevel { get; set; }
+    public int GemQuality { get; set; }
+    public bool Corrupted { get; set; }
+}
+
+public class JSONItemLineClusteJewel : JSONItemLine
+{
+    public int LevelRequired { get; set; }
+    public string Variant { get; set; }
+    public string BaseType { get; set; }
 }

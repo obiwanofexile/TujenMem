@@ -599,7 +599,7 @@ public class TujenMem : BaseSettingsPlugin<TujenMemSettings>
 
                 await ReRollWindow();
 
-                await InputAsync.Wait(() => oldCount > HaggleStock.Coins, 500);
+                await InputAsync.Wait(() => oldCount > HaggleStock.Coins, Instance.Settings.HoverItemDelay);
                 if (oldCount == HaggleStock.Coins)
                 {
                     Error.AddAndShow("Error", "Window did not reroll after attempting a click.\nCheck your hover delay and make sure that the window is not obstructed.");
@@ -872,7 +872,7 @@ public class TujenMem : BaseSettingsPlugin<TujenMemSettings>
                     }
 
                     // Draw border around the item
-                    drawList.AddRect(new System.Numerics.Vector2(pos.X, pos.Y), new System.Numerics.Vector2(pos.X + size.Width, pos.Y + size.Height), borderColor, 0, ImDrawFlags.None, 2);
+                    drawList.AddRect(new System.Numerics.Vector2(pos.X, pos.Y), new System.Numerics.Vector2(pos.X + size.Width, pos.Y + size.Height), borderColor, 0, 2, ImDrawFlags.None);
 
                     if (haggleItem is HaggleItemAbyssJewel abyssJewel && abyssJewel.IsLoadingPrice)
                     {
@@ -959,7 +959,7 @@ public class TujenMem : BaseSettingsPlugin<TujenMemSettings>
                             uint bgColor = ImGui.GetColorU32(new System.Numerics.Vector4(bgColorObj.R / 255f, bgColorObj.G / 255f, bgColorObj.B / 255f, bgColorObj.A / 255f));
                             uint frameColor = ImGui.GetColorU32(new System.Numerics.Vector4(cellColor.R / 255f, cellColor.G / 255f, cellColor.B / 255f, cellColor.A / 255f));
                             drawList.AddRectFilled(new System.Numerics.Vector2(cellRect.Left, cellRect.Top), new System.Numerics.Vector2(cellRect.Right, cellRect.Bottom), bgColor);
-                            drawList.AddRect(new System.Numerics.Vector2(cellRect.Left, cellRect.Top), new System.Numerics.Vector2(cellRect.Right, cellRect.Bottom), frameColor, 0, ImDrawFlags.None, 2);
+                            drawList.AddRect(new System.Numerics.Vector2(cellRect.Left, cellRect.Top), new System.Numerics.Vector2(cellRect.Right, cellRect.Bottom), frameColor, 0, 2, ImDrawFlags.None);
 
 
                             // Draw label
@@ -979,7 +979,7 @@ public class TujenMem : BaseSettingsPlugin<TujenMemSettings>
                             uint bgColor = ImGui.GetColorU32(new System.Numerics.Vector4(bgColorObj.R / 255f, bgColorObj.G / 255f, bgColorObj.B / 255f, bgColorObj.A / 255f));
                             uint frameColor = ImGui.GetColorU32(new System.Numerics.Vector4(cellColor.R / 255f, cellColor.G / 255f, cellColor.B / 255f, cellColor.A / 255f));
                             drawList.AddRectFilled(new System.Numerics.Vector2(cellRect.Left, cellRect.Top), new System.Numerics.Vector2(cellRect.Right, cellRect.Bottom), bgColor);
-                            drawList.AddRect(new System.Numerics.Vector2(cellRect.Left, cellRect.Top), new System.Numerics.Vector2(cellRect.Right, cellRect.Bottom), frameColor, 0, ImDrawFlags.None, 2);
+                            drawList.AddRect(new System.Numerics.Vector2(cellRect.Left, cellRect.Top), new System.Numerics.Vector2(cellRect.Right, cellRect.Bottom), frameColor, 0, 2, ImDrawFlags.None);
 
                             // Draw label
                             var labelSize = ImGui.CalcTextSize(label);
@@ -1051,7 +1051,7 @@ public class TujenMem : BaseSettingsPlugin<TujenMemSettings>
                 });
 
                 var chosenNode = expeditionNodes.First();
-                drawList.AddRect(new System.Numerics.Vector2(chosenNode.Position.TopLeft.X, chosenNode.Position.TopLeft.Y), new System.Numerics.Vector2(chosenNode.Position.BottomRight.X, chosenNode.Position.BottomRight.Y), 0xFF00A5FF, 0, ImDrawFlags.None, 3);
+                drawList.AddRect(new System.Numerics.Vector2(chosenNode.Position.TopLeft.X, chosenNode.Position.TopLeft.Y), new System.Numerics.Vector2(chosenNode.Position.BottomRight.X, chosenNode.Position.BottomRight.Y), 0xFF00A5FF, 0, 3, ImDrawFlags.None);
             }
         }
 
